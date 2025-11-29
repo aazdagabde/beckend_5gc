@@ -2,38 +2,46 @@ package com.free5gc.security_ids.controller;
 
 import com.free5gc.security_ids.model.LogEntry;
 import com.free5gc.security_ids.repository.LogRepository;
+import com.free5gc.security_ids.service.SecurityService; // Import du service
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController // Dit à Spring : "Ceci est une API REST qui renvoie du JSON"
-@RequestMapping("/api/logs") // Tous les endpoints commenceront par cette URL
-@RequiredArgsConstructor // Lombok génère le constructeur pour l'injection de dépendances
-@CrossOrigin(origins = "*") // TRES IMPORTANT : Autorise Python et React (sur d'autres ports) à parler à l'API
+@RestController
+@RequestMapping("/api/logs")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class LogController {
 
-    private final LogRepository logRepository;
+    // On injecte le SecurityService au lieu du Repository directement pour l'ingestion
+    private final SecurityService securityService;
+    private final LogRepository logRepository; // Gardé pour le GET (affichage)
 
     /**
-     * Endpoint pour recevoir un log (Utilisé par le script Python)
-     * URL: POST http://localhost:8080/api/logs
+     * RECEPTION DES LOGS (Depuis Python)
      */
     @PostMapping
     public LogEntry createLog(@RequestBody LogEntry log) {
-        // 1. On affiche dans la console Java pour voir que ça marche
-        System.out.println("📥 Reçu log de " + log.getNfName() + ": " + log.getMessage());
-
-        // 2. On sauvegarde dans MongoDB via le repository
-        return logRepository.save(log);
+        // On passe par le service d'analyse
+        return securityService.processLog(log);
     }
 
     /**
-     * Endpoint pour récupérer tous les logs (Utilisé par le Dashboard React)
-     * URL: GET http://localhost:8080/api/logs
+     * CONSULTATION (Pour le Frontend)
      */
     @GetMapping
     public List<LogEntry> getAllLogs() {
         return logRepository.findAll();
+    }
+
+    // Petit bonus : Endpoint pour récupérer seulement les alertes
+    @GetMapping("/alerts")
+    public List<LogEntry> getAlertsOnly() {
+        // Note: Tu devras peut-être ajouter "findByIsAlertTrue()" dans ton LogRepository si tu veux optimiser,
+        // mais pour l'instant on filtre en Java pour faire simple.
+        return logRepository.findAll().stream()
+                .filter(LogEntry::isAlert)
+                .toList();
     }
 }
