@@ -1,5 +1,6 @@
 package com.free5gc.security_ids.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,10 +14,12 @@ public class LogEntry {
 
     // --- Données reçues du Script Python ---
     private String timestamp;
+    @JsonProperty("nf_name")
     private String nfName;      // ex: "amf", "ausf"
     private String level;       // ex: "INFO", "ERROR"
     private String component;   // ex: "NGAP"
-    private String message;     // Le contenu du log
+    private String message;
+    @JsonProperty("event_type")// Le contenu du log
     private String eventType;   // (Optionnel) Type brut
     private String status;      // (Optionnel) Succès/Echec brut
 
