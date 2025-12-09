@@ -14,17 +14,22 @@ public class LogEntry {
 
     // --- Données reçues du Script Python ---
     private String timestamp;
-    @JsonProperty("nf_name")
-    private String nfName;      // ex: "amf", "ausf"
-    private String level;       // ex: "INFO", "ERROR"
-    private String component;   // ex: "NGAP"
-    private String message;
-    @JsonProperty("event_type")// Le contenu du log
-    private String eventType;   // (Optionnel) Type brut
-    private String status;      // (Optionnel) Succès/Echec brut
 
-    // --- Champs enrichis par l'IDS (Nouveaux !) ---
-    private boolean isAlert = false; // Par défaut, ce n'est pas une alerte
-    private String alertType;        // ex: "AUTH_FAILURE", "DOS_ATTACK"
-    private String severity;         // ex: "LOW", "MEDIUM", "CRITICAL"
+    // CORRECTION ICI : On aligne le nom JSON sur le script Python ("nfName")
+    @JsonProperty("nfName")
+    private String nfName;
+
+    private String level;
+    private String component;
+    private String message;
+
+    @JsonProperty("event_type")
+    private String eventType;
+
+    private String status;
+
+    // --- Champs enrichis par l'IDS ---
+    private boolean isAlert = false;
+    private String alertType;
+    private String severity;
 }
